@@ -1,8 +1,12 @@
 <template>
   <div class="all__wrap" v-if="allComment.length">
     <div class="all__commets" v-for="commets in allComment" :key="commets.id">
-      {{ commets.comment }}
+      <p>{{ commets.comment }}</p>
+      <p style="text-align:center">{{ commets.answer }}</p>
       <div class="btn__group">
+        <button @click="answerComment, (commets.flag = !commets.flag)">
+          answer
+        </button>
         <button
           class="btn__item"
           @click="changeComment(commets), (commets.flag = !commets.flag)"
@@ -14,10 +18,9 @@
         </button>
       </div>
       <p v-if="commets.flag == true">
-        <textarea v-model="correctComment" name="" id="" cols="30" rows="10">
-        </textarea>
+        <textarea v-model="correctComment" cols="30" rows="10" />
         <button @click="correctParam(commets), (commets.flag = !commets.flag)">
-          save?
+          {{ correctComment ? "save" : "send" }}
         </button>
       </p>
     </div>
@@ -31,16 +34,29 @@ export default {
   data() {
     return {
       correctComment: "",
+      answerComm: "",
       visible: false,
     };
   },
   methods: {
+    answerComment() {
+      this.answerComm = true;
+    },
     correctParam(e) {
-      const qwer = {
-        correctComment: this.correctComment,
-        id: e.id,
-      };
-      this.$store.dispatch("comm/correctText", qwer);
+      if (this.answerComm !== true) {
+        const answer = {
+          answer: this.correctComment,
+          id: e.id,
+        };
+        this.$store.dispatch("comm/answerComment", answer);
+        this.correctComment = "";
+      } else {
+        const qwer = {
+          correctComment: this.correctComment,
+          id: e.id,
+        };
+        this.$store.dispatch("comm/correctText", qwer);
+      }
     },
     changeComment(e) {
       this.$store.dispatch("comm/changeComment", e.id);
@@ -64,6 +80,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin: auto;
+  text-align: left;
 }
 .btn__item {
   width: 100px;
